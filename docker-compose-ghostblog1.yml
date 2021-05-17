@@ -1,0 +1,43 @@
+version: "3.3"
+
+services:
+
+  example1_blog:
+  
+    # We are specifying the Ghost Image to run
+    image: ghost:4.3.3-alpine
+
+    
+    # map host port 9198 (external) to Ghost's default internal port 2368
+    ports:
+      - 9198:2368
+
+    environment:
+      # the url of your blog. 
+      url: https://example1.com                                            
+
+    labels:
+     # tells Traefik to detect this docker container
+     - traefik.enable=true
+
+     # tells Traefik to look and match the host name example1.com
+     - traefik.http.routers.example1_blog.rule=Host(`example1.com`)
+
+     # tells Traefik to use the 'websecure' http router entry point.
+     - traefik.http.routers.example1_blog.entrypoints=websecure
+
+     # tells Traefik what certificate resolver to use - 'myresolver'
+     - traefik.http.routers.example1_blog.tls.certresolver=myresolver
+
+    volumes:
+
+      # maps Ghost's data directory to the hosts directory.
+      - /home/deploy/ghost_data/example1_blog/data:/var/lib/ghost/content
+ 
+    networks:
+     - web
+
+
+networks:
+  web:
+    external: true
